@@ -5,6 +5,7 @@
 package sessions
 
 import (
+	"context"
 	"encoding/base32"
 	"io/ioutil"
 	"net/http"
@@ -21,7 +22,7 @@ import (
 // See CookieStore and FilesystemStore for examples.
 type Store interface {
 	// Get should return a cached session.
-	Get(r *http.Request, name string) (*Session, error)
+	Get(ctx context.Context, name string) (*Session, error)
 
 	// New should create and return a new session.
 	//
@@ -76,8 +77,8 @@ type CookieStore struct {
 //
 // It returns a new session and an error if the session exists but could
 // not be decoded.
-func (s *CookieStore) Get(r *http.Request, name string) (*Session, error) {
-	return GetRegistry(r).Get(s, name)
+func (s *CookieStore) Get(ctx context.Context, name string) (*Session, error) {
+	return RegistryFromContext(ctx).Get(s, name)
 }
 
 // New returns a session for the given name without adding it to the registry.
@@ -179,8 +180,8 @@ func (s *FilesystemStore) MaxLength(l int) {
 // Get returns a session for the given name after adding it to the registry.
 //
 // See CookieStore.Get().
-func (s *FilesystemStore) Get(r *http.Request, name string) (*Session, error) {
-	return GetRegistry(r).Get(s, name)
+func (s *FilesystemStore) Get(ctx context.Context, name string) (*Session, error) {
+	return RegistryFromContext(ctx).Get(s, name)
 }
 
 // New returns a session for the given name without adding it to the registry.
